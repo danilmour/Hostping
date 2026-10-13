@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>hostping</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' fill='%231a7f37'/><circle cx='8' cy='8' r='2.5' fill='%23ffffff'/></svg>" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#hosts-table">Skip to host table</a>
+
+  <header class="app-header">
+    <div class="brand">
+      <h1 class="brand-title">
+        <span class="brand-mark" aria-hidden="true">&#9678;</span>hostping
+      </h1>
+      <p class="brand-tagline">Live reachability of the entries in your hosts file</p>
+    </div>
+
+    <div class="controls" role="group" aria-label="Refresh controls">
+      <div class="control">
+        <label class="control-label" for="interval-select">Refresh every</label>
+        <select id="interval-select" class="select" name="interval">
+          <option value="5000">5 seconds</option>
+          <option value="15000" selected>15 seconds</option>
+          <option value="30000">30 seconds</option>
+          <option value="60000">60 seconds (1 minute)</option>
+        </select>
+      </div>
+      <button id="pause-btn" class="button" type="button" aria-pressed="false"
+              title="Pause automatic refresh">Pause</button>
+      <button id="refresh-btn" class="button button--primary" type="button">Refresh now</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" role="alert" hidden>
+    <span class="banner-icon" aria-hidden="true">&#9888;</span>
+    <span id="banner-text" class="banner-text"></span>
+    <button id="banner-dismiss" class="banner-dismiss" type="button"
+            aria-label="Dismiss error message">&#10005;</button>
+  </div>
+
+  <main>
+    <section class="section" aria-labelledby="summary-heading">
+      <h2 id="summary-heading" class="section-heading">Summary</h2>
+      <ul class="summary-bar" id="summary-bar">
+        <li class="stat stat--up" title="Reachable IP and hostname">
+          <span class="stat-dot" aria-hidden="true"></span>
+          <span class="stat-value" id="stat-up">&mdash;</span>
+          <span class="stat-label">Up</span>
+        </li>
+        <li class="stat stat--degraded" title="Reachable IP but the hostname does not work">
+          <span class="stat-dot" aria-hidden="true"></span>
+          <span class="stat-value" id="stat-degraded">&mdash;</span>
+          <span class="stat-label">Degraded</span>
+        </li>
+        <li class="stat stat--down" title="IP not reachable">
+          <span class="stat-dot" aria-hidden="true"></span>
+          <span class="stat-value" id="stat-down">&mdash;</span>
+          <span class="stat-label">Down</span>
+        </li>
+        <li class="stat stat--unknown" title="Check could not be performed">
+          <span class="stat-dot" aria-hidden="true"></span>
+          <span class="stat-value" id="stat-unknown">&mdash;</span>
+          <span class="stat-label">Unknown</span>
+        </li>
+        <li class="stat stat--total" title="Total number of hosts-file entries">
+          <span class="stat-value" id="stat-total">&mdash;</span>
+          <span class="stat-label">Total</span>
+        </li>
+      </ul>
+
+      <p class="meta">
+        <span class="meta-item">Last updated <strong id="last-updated" class="mono">&mdash;</strong></span>
+        <span class="meta-sep" aria-hidden="true">&middot;</span>
+        <span class="meta-item">Next refresh <strong id="countdown" class="mono">&mdash;</strong></span>
+        <span class="meta-sep" aria-hidden="true">&middot;</span>
+        <span class="meta-item" id="scan-meta">Waiting for the first scan&hellip;</span>
+      </p>
+    </section>
+
+    <section class="section" aria-labelledby="hosts-heading">
+      <h2 id="hosts-heading" class="section-heading">Hosts</h2>
+
+      <p id="loading" class="loading" role="status">
+        <span class="spinner" aria-hidden="true"></span>Scanning hosts&hellip;
+      </p>
+
+      <div class="table-wrap">
+        <table id="hosts-table" class="hosts-table" tabindex="-1" aria-busy="true">
+          <caption class="sr-only">
+            Hosts-file entries with reachability status, method, latency and warnings
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-status">Status</th>
+              <th scope="col" class="col-ip">IP</th>
+              <th scope="col" class="col-host">Hostname</th>
+              <th scope="col" class="col-method">Method</th>
+              <th scope="col" class="col-num">Latency (ms)</th>
+              <th scope="col" class="col-warn">Warnings</th>
+            </tr>
+          </thead>
+          <tbody id="hosts-body">
+            <tr class="table-placeholder">
+              <td colspan="6">Waiting for the first scan&hellip;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      hostping &mdash; local hosts-file reachability monitor. Polls
+      <code class="mono">/api/hosts</code>; every colour is paired with a text label
+      so status is never colour-only.
+    </p>
+  </footer>
+
+  <div id="live" class="sr-only" role="status" aria-live="polite"></div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
