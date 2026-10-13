@@ -18,27 +18,17 @@ concurrency:
 
 jobs:
   tests:
-    name: Unit tests (Python ${{ matrix.python-version }})
+    name: Unit tests (Python 3.14)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.14"
 
       - name: Byte-compile package, tests and scripts
         run: python -m compileall -q hostping tests scripts
@@ -54,10 +44,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Python 3.13
+      - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Run static/policy checks (stdlib-only, offline frontend, read-only package)
         run: python scripts/ci_validate.py
@@ -70,10 +60,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Python 3.13
+      - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Syntax-check the frontend JavaScript
         run: node --check web/app.js
