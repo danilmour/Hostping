@@ -1,0 +1,1 @@
+"""hostping test suite."""
