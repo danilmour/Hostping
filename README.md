@@ -1,5 +1,7 @@
 # hostping
 
+[![CI](https://github.com/danilmour/Hostping/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/danilmour/Hostping/actions/workflows/ci.yml)
+
 A small **local web app** that reads your operating system's hosts file, pings
 every entry, and shows a traffic-light ("semaphore") colour code for
 reachable vs. unreachable hosts. The page auto-refreshes, so the status updates
@@ -177,6 +179,38 @@ cd /home/daniel/hostping && python3 -m unittest discover -s tests -t . -v
 All tests are offline-friendly: network-dependent scenarios (DNS failures,
 timeouts, unreachable hosts) are exercised with an injected fake checker rather
 than the real network.
+
+## Continuous integration
+
+The GitHub Actions workflow [`ci.yml`](.github/workflows/ci.yml) (name `CI`)
+runs on every push and pull request, and can also be started manually from the
+Actions tab (`workflow_dispatch`). It is validation-only — there are no release,
+publish or deploy jobs — and it installs **no** third-party packages and adds no
+build step, in line with the stdlib-only rule in
+[Requirements](#requirements). It requests read-only `contents` permission and
+cancels superseded runs on the same branch.
+
+| Job | Runner | What it validates |
+|-----|--------|-------------------|
+| `Unit tests (Python 3.9)` … `Unit tests (Python 3.14)` | `ubuntu-24.04`, matrix 3.9–3.14 | Byte-compiles `hostping`, `tests` and `scripts`, then runs the unittest suite from [Testing](#testing). |
+| `Static & policy validation` | `ubuntu-24.04` | `python scripts/ci_validate.py`: no third-party Python imports (SPEC §3) anywhere in `hostping/`, `tests/` or `scripts/`; no external/CDN resources in `web/*` (SPEC §7), including `fetch`/`Worker`-style loads and bare URLs; `/app.js` + `/styles.css` wiring plus the summary ids and their text labels in `web/index.html` (AC9); and no write-mode file opens anywhere in `hostping/`. |
+| `End-to-end smoke test` | `ubuntu-24.04` | `node --check web/app.js`, then `python scripts/smoke_test.py`: boots the real server on a free loopback port with a temporary hosts fixture and checks the SPEC §6 API contract (key sets, `summary`/entry invariants, fixture → entry mapping), the `/index.html`, `/app.js`, `/styles.css` and `/api/health` routes plus the 404/500 error paths, the CLI `--version`/`--help`, the occupied-port error path, and the read-only hosts-file guarantee. |
+
+The matrix is Linux-only because the reachability code shells out to
+`ping -c/-W`.
+
+Run the same validations locally before pushing:
+
+```bash
+cd /home/daniel/hostping
+python3 scripts/ci_validate.py
+python3 scripts/smoke_test.py
+python3 -m unittest discover -s tests -t . -v   # see Testing
+```
+
+To require CI before merging, add these checks in branch protection:
+`Unit tests (Python 3.9)` through `Unit tests (Python 3.14)`,
+`Static & policy validation`, and `End-to-end smoke test`.
 
 ## Project layout
 
